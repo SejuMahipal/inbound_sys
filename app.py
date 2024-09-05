@@ -2,7 +2,7 @@ import streamlit as st
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
-from st_aggrid import AgGrid, GridOptionsBuilder, JsCode
+from st_aggrid import AgGrid
 
 # Load secrets from the secrets.toml file
 spreadsheet_url = st.secrets["connections"]["gsheets"]["spreadsheet"]
@@ -34,62 +34,21 @@ def load_data():
     df = pd.DataFrame(data)
     return df
 
-# Helper to configure Ag-Grid options
-def configure_grid(df):
-    gb = GridOptionsBuilder.from_dataframe(df)
-    
-    # Customize columns
-    gb.configure_column("キーワード", header_name="🔑 キーワード", cellStyle={'color': 'black', 'fontWeight': 'bold'})
-    gb.configure_column("電話番号", header_name="📞 電話番号", cellStyle={'color': 'blue', 'fontWeight': 'bold'})
-    gb.configure_column("SMS", header_name="📲 SMS", cellStyle={'color': 'green'})
-    
-    # Conditional row styles
-    cell_renderer = JsCode("""
-    function(params) {
-        if (params.value) {
-            return `<span style='color: green;'>✅ ${params.value}</span>`;
-        } else {
-            return `<span style='color: red;'>❌ No Data</span>`;
-        }
-    }
-    """)
-    
-    gb.configure_column("E-MAIL", cellRenderer=cell_renderer)  # Apply conditional styling for email field
-    
-    # Enable pagination and default interactive features
-    gb.configure_pagination(paginationAutoPageSize=True)
-    gb.configure_default_column(editable=False, groupable=True)
-    gb.configure_side_bar()  # Enable sidebar for filtering and column management
-    grid_options = gb.build()
-    
-    return grid_options
-
 # Page 1: View Data
 st.title("📊 Interactive Data from Google Sheets")
 
 data_df = load_data()
 
 if not data_df.empty:
-    # Generate Ag-Grid table with interactive features
-    grid_options = configure_grid(data_df)
-    
     st.subheader("Interactive Table View")
     
-    response = AgGrid(
-        data_df,
-        gridOptions=grid_options,
-        enable_enterprise_modules=True,
-        theme="material",  # Themes: 'light', 'dark', 'blue', 'material', 'balham'
-        update_mode='SELECTION_CHANGED',
-        height=500,
-        fit_columns_on_grid_load=True
-    )
+    # Basic Ag-Grid implementation without custom options
+    response = AgGrid(data_df)
     
     st.write("You selected:")
     st.write(response['selected_rows'])  # Display selected rows
 else:
     st.write("No data available to display.")
-
 
 
 
