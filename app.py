@@ -50,6 +50,15 @@ def format_time_period(df):
     df['夜の時間'] = df['夜の開始時間'] + " - " + df['夜の終了時間']
     return df[['キーワード', '類似語1', '類似語2', '類似語3', '類似語4', '電話番号', 'SMS', '昼の転送方法', '昼の返答', '昼の時間', '夜の転送方法', '夜の返答', '夜の時間']]
 
+# Predefined options for dropdowns
+transfer_options = ["電話とSMSを転送", "SMSのみ転送"]
+response_options = [
+    "承知いたしました。AIの電話に転送いたします。",
+    "承知いたしました。チャットGPTの電話に転送いたします。",
+    "承知いたしました。近澤の電話に転送いたします。",
+    "承知いたしました。必要であればこちらからご連絡を差し上げます。ご連絡ありがとうございました。",
+]
+
 # Page 1: View Data
 if page == "View Data":
     st.title("📊 View Data from Google Sheets")
@@ -92,12 +101,20 @@ elif page == "Edit Data":
         phone_number = st.text_input("電話番号 (Phone Number)")
         sms_number = st.text_input("SMS")
         email = st.text_input("E-MAIL")
-        day_transfer = st.text_input("昼の転送方法 (Day Transfer Method)")
-        day_response = st.text_area("昼の返答 (Day Response)")
+        
+        # Dropdown for Day Transfer Method and Response
+        day_transfer = st.selectbox("昼の転送方法 (Day Transfer Method)", transfer_options)
+        day_response = st.selectbox("昼の返答 (Day Response)", response_options)
+        
+        # Time inputs for day
         day_start = st.time_input("昼の開始時間 (Day Start Time)", value=pd.to_datetime("09:00").time())
         day_end = st.time_input("昼の終了時間 (Day End Time)", value=pd.to_datetime("18:00").time())
-        night_transfer = st.text_input("夜の転送方法 (Night Transfer Method)")
-        night_response = st.text_area("夜の返答 (Night Response)")
+        
+        # Dropdown for Night Transfer Method and Response
+        night_transfer = st.selectbox("夜の転送方法 (Night Transfer Method)", transfer_options)
+        night_response = st.selectbox("夜の返答 (Night Response)", response_options)
+        
+        # Time inputs for night
         night_start = st.time_input("夜の開始時間 (Night Start Time)", value=pd.to_datetime("18:01").time())
         night_end = st.time_input("夜の終了時間 (Night End Time)", value=pd.to_datetime("22:00").time())
         
@@ -110,8 +127,6 @@ elif page == "Edit Data":
                 st.experimental_rerun()
             else:
                 st.error("Please fill in all required fields (Keyword and Phone Number).")
-
-
 
 
 # #################################################################
