@@ -1,16 +1,32 @@
 import streamlit as st
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
-import pandas as pd
 
-# Google Sheets credentials
+# Load secrets from the secrets.toml file
+spreadsheet_url = st.secrets["connections"]["gsheets"]["spreadsheet"]
+private_key = st.secrets["connections"]["gsheets"]["private_key"]
+
+# Set up Google Sheets API credentials
 SCOPE = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", SCOPE)
+creds_dict = {
+    "type": st.secrets["connections"]["gsheets"]["type"],
+    "project_id": st.secrets["connections"]["gsheets"]["project_id"],
+    "private_key_id": st.secrets["connections"]["gsheets"]["private_key_id"],
+    "private_key": st.secrets["connections"]["gsheets"]["private_key"],
+    "client_email": st.secrets["connections"]["gsheets"]["client_email"],
+    "client_id": st.secrets["connections"]["gsheets"]["client_id"],
+    "auth_uri": st.secrets["connections"]["gsheets"]["auth_uri"],
+    "token_uri": st.secrets["connections"]["gsheets"]["token_uri"],
+    "auth_provider_x509_cert_url": st.secrets["connections"]["gsheets"]["auth_provider_x509_cert_url"],
+    "client_x509_cert_url": st.secrets["connections"]["gsheets"]["client_x509_cert_url"]
+}
+
+creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, SCOPE)
 client = gspread.authorize(creds)
 
-# Load data from Google Sheets
-SHEET_NAME = "Life recept"  # Change this to your sheet name
-sheet = client.open(SHEET_NAME).Sheet1
+# Access the spreadsheet
+sheet = client.open_by_url(spreadsheet_url).sheet1
+
 
 # Load data as a pandas DataFrame
 def load_data():
