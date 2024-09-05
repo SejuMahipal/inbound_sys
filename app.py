@@ -9,8 +9,8 @@ creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", SCO
 client = gspread.authorize(creds)
 
 # Load data from Google Sheets
-SHEET_NAME = "your_google_sheet_name"  # Change this to your sheet name
-sheet = client.open(SHEET_NAME).sheet1
+SHEET_NAME = "Life recept"  # Change this to your sheet name
+sheet = client.open(SHEET_NAME).Sheet1
 
 # Load data as a pandas DataFrame
 def load_data():
