@@ -2,6 +2,7 @@ import streamlit as st
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
+from st_aggrid import AgGrid, GridOptionsBuilder, JsCode
 
 # Load secrets from the secrets.toml file
 spreadsheet_url = st.secrets["connections"]["gsheets"]["spreadsheet"]
@@ -33,40 +34,39 @@ def load_data():
     df = pd.DataFrame(data)
     return df
 
-# Helper to create a visually appealing card layout
-def display_card_layout(df):
-    for index, row in df.iterrows():
-        with st.container():
-            st.markdown(f"### 🔑 Keyword: {row['キーワード']}")
-            st.markdown(f"**Phone Number**: `{row['電話番号']}`")
-            st.markdown(f"**SMS**: `{row['SMS']}`")
-            
-            # Display synonyms
-            st.markdown("**Synonyms:**")
-            synonyms = [row['類似語1'], row['類似語2'], row['類似語3'], row['類似語4']]
-            synonyms = [syn for syn in synonyms if syn]  # Remove empty values
-            st.write(", ".join(synonyms))
-            
-            # Daytime and Nighttime details
-            st.markdown("**Daytime Transfer Method & Response:**")
-            st.write(f"Method: `{row['昼の転送方法']}`")
-            st.write(f"Response: {row['昼の返答']}")
-            st.write(f"Time: {row['昼の開始時間']} - {row['昼の終了時間']}")
-            
-            with st.expander("Nighttime Settings"):
-                st.markdown("**Nighttime Transfer Method & Response:**")
-                st.write(f"Method: `{row['夜の転送方法']}`")
-                st.write(f"Response: {row['夜の返答']}")
-                st.write(f"Time: {row['夜の開始時間']} - {row['夜の終了時間']}")
-            
-            st.markdown("---")  # Add a separator between each card
+# Helper to configure Ag-Grid options
+def configure_grid(df):
+    gb = GridOptionsBuilder.from_dataframe(df)
+    gb.configure_pagination(paginationAutoPageSize=True)  # Enable pagination
+    gb.configure_default_column(groupable=True, value=True, enableRowGroup=True, editable=False)
+    gb.configure_column("電話番号", type=["numericColumn"], headerCheckboxSelection=True)
+    gb.configure_side_bar()  # Enable a sidebar for filter & column management
+    grid_options = gb.build()
+    
+    return grid_options
 
 # Page 1: View Data
-st.title("📊 View Data from Google Sheets")
+st.title("📊 Interactive Data from Google Sheets")
 
 data_df = load_data()
 
 if not data_df.empty:
-    display_card_layout(data_df)
+    # Generate Ag-Grid table with interactive features
+    grid_options = configure_grid(data_df)
+    
+    st.subheader("Interactive Table View")
+    
+    response = AgGrid(
+        data_df,
+        gridOptions=grid_options,
+        enable_enterprise_modules=True,
+        theme="material",  # Theme options: 'streamlit', 'light', 'dark', 'blue', 'material'
+        update_mode='SELECTION_CHANGED',
+        height=400,
+        fit_columns_on_grid_load=True
+    )
+    
+    st.write("You selected:")
+    st.write(response['selected_rows'])  # Display selected rows
 else:
     st.write("No data available to display.")
