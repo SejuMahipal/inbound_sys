@@ -66,6 +66,7 @@ with col1:
 with col2:
     st.title("アンビシオ受付君")
 
+
 # Create three columns for alignment, where the last two will contain the buttons
 col1, col2, col3 = st.columns([6, 1, 1])
 
@@ -74,12 +75,13 @@ if "page" not in st.session_state:
     st.session_state.page = "View Data"
 
 with col2:
-    if st.button("View Data"):
+    if st.button("データ表示"):
         st.session_state.page = "View Data"
 
 with col3:
-    if st.button("Upload Data"):
+    if st.button("データ編集"):
         st.session_state.page = "Upload Data"
+
 
 # Handle page switching
 page = st.session_state.page
