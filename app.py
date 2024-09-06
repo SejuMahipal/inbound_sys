@@ -61,7 +61,7 @@ st.set_page_config(page_title="受付君", layout="wide")
 col1, col2 = st.columns([1, 4])
 with col1:
     # Using the raw URL from GitHub
-    image_url = "https://github.com/SejuMahipal/inbound_sys/blob/main/logo.png?raw=true"
+    image_url = "https://raw.githubusercontent.com/SejuMahipal/inbound_sys/main/logo.png"
     st.image(image_url, width=100)  # Adjust width if needed
 with col2:
     st.title("アンビシオ受付君")
@@ -161,6 +161,8 @@ elif page == "Upload Data":
                 st.error(f"The columns in the uploaded file do not match the expected columns. Please ensure the following order: {', '.join(EXPECTED_COLUMNS)}")
         except Exception as e:
             st.error(f"Error processing the file: {e}")
+
+
 
 
 
