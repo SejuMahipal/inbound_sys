@@ -65,9 +65,26 @@ def overwrite_google_sheet(dataframe):
 # Streamlit multipage setup
 st.set_page_config(page_title="Google Sheets Data App", layout="wide")
 
-# Sidebar for navigation
-st.sidebar.title("Navigation")
-page = st.sidebar.radio("Go to", ["View Data", "Upload Data"])
+# Top navigation buttons for switching between pages
+st.title("Google Sheets Data App")
+
+# Navigation Buttons
+col1, col2 = st.columns(2)
+
+with col1:
+    if st.button("View Data"):
+        page = "View Data"
+    else:
+        page = st.session_state.get("page", "View Data")
+
+with col2:
+    if st.button("Upload Data"):
+        page = "Upload Data"
+    else:
+        page = st.session_state.get("page", page)
+
+# Save page state to maintain navigation across sessions
+st.session_state["page"] = page
 
 # Page 1: View Data
 if page == "View Data":
@@ -109,7 +126,6 @@ elif page == "Upload Data":
                 st.error(f"The columns in the uploaded file do not match the expected columns. Please ensure the following order: {', '.join(EXPECTED_COLUMNS)}")
         except Exception as e:
             st.error(f"Error processing the file: {e}")
-
 
 
 # #################################################################
