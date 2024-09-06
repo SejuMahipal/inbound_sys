@@ -66,9 +66,8 @@ with col1:
 with col2:
     st.title("アンビシオ受付君")
 
-
-# Create three columns for alignment, where the last two will contain the buttons
-col1, col2, col3 = st.columns([6, 1, 1])
+# Create three columns for alignment, where the last three will contain the buttons
+col1, col2, col3, col4 = st.columns([6, 1, 1, 1])
 
 # Default to "View Data" if session state isn't set
 if "page" not in st.session_state:
@@ -82,13 +81,16 @@ with col3:
     if st.button("データ編集"):
         st.session_state.page = "Upload Data"
 
+with col4:
+    if st.button("通話履歴"):
+        st.session_state.page = "Call History"
 
 # Handle page switching
 page = st.session_state.page
 
 # Page 1: View Data
 if page == "View Data":
-    st.title("📊 現状データ")  # Changed "View Data from Google Sheets" to "現状データ"
+    st.title("📊 現状データ")
     
     # Load the data each time the View Data page is accessed
     data_df = load_data()
@@ -137,7 +139,7 @@ if page == "View Data":
 
 # Page 2: Upload Data
 elif page == "Upload Data":
-    st.title("📤 エクセルシートをアップロードしてGoogle Sheetsを更新")  # Changed to Japanese
+    st.title("📤 エクセルシートをアップロードしてGoogle Sheetsを更新")
 
     # File uploader
     uploaded_file = st.file_uploader("エクセルファイルをアップロード", type=["xlsx"])
@@ -163,6 +165,11 @@ elif page == "Upload Data":
                 st.error(f"アップロードされたファイルの列が期待通りの列と一致しません。次の順序であることを確認してください: {', '.join(EXPECTED_COLUMNS)}")
         except Exception as e:
             st.error(f"ファイル処理エラー: {e}")
+
+# Page 3: Call History
+elif page == "Call History":
+    st.title("📞 通話履歴")
+    st.write("メンテナンス中")  # Display "Under Maintenance" message in Japanese
 
 
 
