@@ -68,8 +68,8 @@ st.set_page_config(page_title="Google Sheets Data App", layout="wide")
 # Top navigation buttons for switching between pages
 st.title("Google Sheets Data App")
 
-# Navigation Buttons
-col1, col2 = st.columns(2)
+# Adjust the column sizes to place buttons closer together
+col1, col2, col3 = st.columns([1, 0.1, 1])
 
 with col1:
     if st.button("View Data"):
@@ -77,7 +77,7 @@ with col1:
     else:
         page = st.session_state.get("page", "View Data")
 
-with col2:
+with col3:
     if st.button("Upload Data"):
         page = "Upload Data"
     else:
