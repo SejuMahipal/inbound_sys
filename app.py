@@ -3,12 +3,12 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
 
-# Expected column order
-EXPECTED_COLUMNS = [
-    'キーワード', '類似語1', '類似語2', '類似語3', '類似語4', 
-    '電話番号', 'SMS', 'E-MAIL', '昼の転送方法', '昼の返答', 
-    '昼の開始時間', '昼の終了時間', '夜の転送方法', 
-    '夜の返答', '夜の開始時間', '夜の終了時間'
+# Expected columns for keyword and action list
+KEYWORD_COLUMNS = ['キーワード', '類似語1', '類似語2', '類似語3', '類似語4']
+ACTION_COLUMNS = [
+    'キーワード', '電話番号', 'SMS', 'E-MAIL', '昼の転送方法', '昼の返答', 
+    '昼の開始時間', '昼の終了時間', '夜の転送方法', '夜の返答', 
+    '夜の開始時間', '夜の終了時間'
 ]
 
 # Google Sheets API setup
@@ -43,90 +43,62 @@ def load_data():
 # Function to display the Keyword List
 def display_keyword_list(data_df):
     # Filter for only the Keyword List columns
-    keyword_df = data_df[['キーワード', '類似語1', '類似語2', '類似語3', '類似語4']]
+    keyword_df = data_df[KEYWORD_COLUMNS]
     st.subheader("📋 キーワードリスト")
     st.table(keyword_df)
 
 # Function to display the Action List
 def display_action_list(data_df):
     # Filter for only the Action List columns
-    action_df = data_df[['キーワード', '電話番号', 'SMS', 'E-MAIL', '昼の転送方法', '昼の返答', 
-                         '昼の開始時間', '昼の終了時間', '夜の転送方法', '夜の返答', 
-                         '夜の開始時間', '夜の終了時間']]
+    action_df = data_df[ACTION_COLUMNS]
     st.subheader("📋 アクションリスト")
     st.table(action_df)
 
 # Streamlit multipage setup
 st.set_page_config(page_title="Google Sheets Data App", layout="wide")
 
-# Top navigation buttons for switching between pages, aligned to the right
-st.title("Google Sheets Data App")
+# Custom button style using HTML and CSS
+button_style = """
+    <style>
+    .button-container {
+        display: flex;
+        justify-content: space-between;
+    }
+    .button {
+        font-size: 24px;
+        padding: 20px;
+        width: 48%;
+        text-align: center;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+    }
+    .button:hover {
+        background-color: #45a049;
+    }
+    </style>
+"""
 
-# Create three columns for alignment, where the last two will contain the buttons
-col1, col2, col3 = st.columns([6, 1, 1])
+# Inject the custom style
+st.markdown(button_style, unsafe_allow_html=True)
 
-# Default to "View Data" if session state isn't set
-if "page" not in st.session_state:
-    st.session_state.page = "View Data"
+# Create a horizontal layout for the buttons
+st.markdown('<div class="button-container">', unsafe_allow_html=True)
+col1, col2 = st.columns(2)
 
+with col1:
+    keyword_button = st.markdown('<button class="button">Keyword List</button>', unsafe_allow_html=True)
 with col2:
-    if st.button("View Data"):
-        st.session_state.page = "View Data"
+    action_button = st.markdown('<button class="button">Action List</button>', unsafe_allow_html=True)
+st.markdown('</div>', unsafe_allow_html=True)
 
-with col3:
-    if st.button("Upload Data"):
-        st.session_state.page = "Upload Data"
-
-# Handle page switching
-page = st.session_state.page
-
-# Page 1: View Data
-if page == "View Data":
-    st.title("📊 View Data from Google Sheets")
-    
-    # Load the data each time the View Data page is accessed
-    data_df = load_data()
-
-    if not data_df.empty:
-        st.subheader("Choose the list you want to view:")
-
-        # Create buttons to switch between Keyword List and Action List
-        if st.button("Keyword List"):
-            display_keyword_list(data_df)
-
-        if st.button("Action List"):
-            display_action_list(data_df)
-    else:
-        st.write("No data available to display.")
-
-# Page 2: Upload Data
-elif page == "Upload Data":
-    st.title("📤 Upload Excel to Update Google Sheets")
-
-    # File uploader
-    uploaded_file = st.file_uploader("Upload your Excel file", type=["xlsx"])
-
-    if uploaded_file:
-        try:
-            # Read the uploaded Excel file using openpyxl engine
-            df = pd.read_excel(uploaded_file, engine="openpyxl")
-
-            # Display the uploaded file's content
-            st.write("### Uploaded Data Preview:")
-            st.table(df)
-
-            # Check if the column names match the expected columns
-            if list(df.columns) == EXPECTED_COLUMNS:
-                st.success("The columns match the expected order.")
-
-                # Overwrite the Google Sheet with the new data
-                if st.button("Update Google Sheets"):
-                    overwrite_google_sheet(df)
-                    st.success("Google Sheets has been successfully updated!")
-            else:
-                st.error(f"The columns in the uploaded file do not match the expected columns. Please ensure the following order: {', '.join(EXPECTED_COLUMNS)}")
-        except Exception as e:
-            st.error(f"Error processing the file: {e}")
+# Handle the display of the data based on button clicks
+if st.session_state.page == "Keyword List":
+    display_keyword_list(data_df)
+elif st.session_state.page == "Action List":
+    display_action_list(data_df)
 
 
 
