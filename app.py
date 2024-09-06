@@ -23,7 +23,7 @@ creds_dict = {
     "client_email": st.secrets["connections"]["gsheets"]["client_email"],
     "client_id": st.secrets["connections"]["gsheets"]["client_id"],
     "auth_uri": st.secrets["connections"]["gsheets"]["auth_uri"],
-    "token_uri": st.secrets["connections"]["gsheets"]["token_uri"],
+    "token_uri": st.secrets["gsheets"]["token_uri"],
     "auth_provider_x509_cert_url": st.secrets["connections"]["gsheets"]["auth_provider_x509_cert_url"],
     "client_x509_cert_url": st.secrets["connections"]["gsheets"]["client_x509_cert_url"]
 }
