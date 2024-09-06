@@ -57,8 +57,14 @@ def display_action_list(data_df):
 # Streamlit multipage setup
 st.set_page_config(page_title="受付君", layout="wide")
 
-# Top navigation buttons for switching between pages, aligned to the right
-st.title("アンビシオ受付君")
+# Title with Image on the Left
+col1, col2 = st.columns([1, 4])
+with col1:
+    # Using the raw URL from GitHub
+    image_url = "https://github.com/SejuMahipal/inbound_sys/blob/main/logo.png?raw=true"
+    st.image(image_url, width=100)  # Adjust width if needed
+with col2:
+    st.title("アンビシオ受付君")
 
 # Create three columns for alignment, where the last two will contain the buttons
 col1, col2, col3 = st.columns([6, 1, 1])
@@ -155,6 +161,7 @@ elif page == "Upload Data":
                 st.error(f"The columns in the uploaded file do not match the expected columns. Please ensure the following order: {', '.join(EXPECTED_COLUMNS)}")
         except Exception as e:
             st.error(f"Error processing the file: {e}")
+
 
 
 
