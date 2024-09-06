@@ -3,6 +3,14 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
 
+# Expected column order
+EXPECTED_COLUMNS = [
+    'キーワード', '類似語1', '類似語2', '類似語3', '類似語4', 
+    '電話番号', 'SMS', 'E-MAIL', '昼の転送方法', '昼の返答', 
+    '昼の開始時間', '昼の終了時間', '夜の転送方法', 
+    '夜の返答', '夜の開始時間', '夜の終了時間'
+]
+
 # Google Sheets API setup
 spreadsheet_url = st.secrets["connections"]["gsheets"]["spreadsheet"]
 
@@ -26,22 +34,23 @@ client = gspread.authorize(creds)
 # Access the spreadsheet
 sheet = client.open_by_url(spreadsheet_url).sheet1
 
-# Load data as a pandas DataFrame
+# Function to load data from Google Sheets
 def load_data():
     data = sheet.get_all_records()
     df = pd.DataFrame(data)
     return df
 
-# Function to update a row in Google Sheets
-def update_row_in_google_sheet(index, updated_row):
-    sheet.update(f'A{index + 2}:P{index + 2}', [updated_row])
+# Function to overwrite data in Google Sheets
+def overwrite_google_sheet(dataframe):
+    sheet.clear()  # Clear the existing data
+    sheet.update([dataframe.columns.values.tolist()] + dataframe.values.tolist())  # Write new data
 
 # Streamlit multipage setup
 st.set_page_config(page_title="Google Sheets Data App", layout="wide")
 
 # Sidebar for navigation
 st.sidebar.title("Navigation")
-page = st.sidebar.radio("Go to", ["View Data", "Edit Data", "Add Data", "Delete Data"])
+page = st.sidebar.radio("Go to", ["View Data", "Upload Data"])
 
 # Page 1: View Data
 if page == "View Data":
@@ -55,54 +64,32 @@ if page == "View Data":
     else:
         st.write("No data available to display.")
 
-# Page 2: Edit Data
-elif page == "Edit Data":
-    st.title("📝 Edit Data in Google Sheets")
-    
-    data_df = load_data()
+# Page 2: Upload Data
+elif page == "Upload Data":
+    st.title("📤 Upload Excel to Update Google Sheets")
 
-    if not data_df.empty:
-        st.subheader("Select a row to edit")
-        row_to_edit = st.number_input("Enter row index to edit (starting from 0):", min_value=0, max_value=len(data_df)-1)
-        
-        if st.button("Edit Row"):
-            # Fetch the current data for the selected row
-            row_data = data_df.iloc[row_to_edit].tolist()
-            
-            # Display a form prefilled with the current row data
-            st.subheader(f"Editing Row {row_to_edit + 1}")
-            with st.form("edit_row_form"):
-                col1 = st.text_input("キーワード (Keyword)", value=row_data[0])
-                col2 = st.text_input("類似語1 (Synonym 1)", value=row_data[1])
-                col3 = st.text_input("類似語2 (Synonym 2)", value=row_data[2])
-                col4 = st.text_input("類似語3 (Synonym 3)", value=row_data[3])
-                col5 = st.text_input("類似語4 (Synonym 4)", value=row_data[4])
-                phone_number = st.text_input("電話番号 (Phone Number)", value=row_data[5])
-                sms_number = st.text_input("SMS", value=row_data[6])
-                email = st.text_input("E-MAIL", value=row_data[7])
-                
-                day_transfer = st.text_input("昼の転送方法 (Day Transfer Method)", value=row_data[8])
-                day_response = st.text_input("昼の返答 (Day Response)", value=row_data[9])
-                day_start = st.text_input("昼の開始時間 (Day Start Time)", value=row_data[10])
-                day_end = st.text_input("昼の終了時間 (Day End Time)", value=row_data[11])
-                
-                night_transfer = st.text_input("夜の転送方法 (Night Transfer Method)", value=row_data[12])
-                night_response = st.text_input("夜の返答 (Night Response)", value=row_data[13])
-                night_start = st.text_input("夜の開始時間 (Night Start Time)", value=row_data[14])
-                night_end = st.text_input("夜の終了時間 (Night End Time)", value=row_data[15])
-                
-                submitted = st.form_submit_button("Save Changes")
-                
-                if submitted:
-                    # Create updated row with form data
-                    updated_row = [col1, col2, col3, col4, col5, phone_number, sms_number, email, day_transfer, day_response, day_start, day_end, night_transfer, night_response, night_start, night_end]
-                    
-                    # Update Google Sheets with new data
-                    update_row_in_google_sheet(row_to_edit, updated_row)
-                    st.success(f"Row {row_to_edit + 1} updated successfully!")
-                    st.experimental_rerun()
-    else:
-        st.write("No data available to edit.")
+    # File uploader
+    uploaded_file = st.file_uploader("Upload your Excel file", type=["xlsx"])
+
+    if uploaded_file:
+        # Read the uploaded Excel file
+        df = pd.read_excel(uploaded_file)
+
+        # Display the uploaded file's content
+        st.write("### Uploaded Data Preview:")
+        st.dataframe(df, use_container_width=True)
+
+        # Check if the column names match the expected columns
+        if list(df.columns) == EXPECTED_COLUMNS:
+            st.success("The columns match the expected order.")
+
+            # Overwrite the Google Sheet with the new data
+            if st.button("Update Google Sheets"):
+                overwrite_google_sheet(df)
+                st.success("Google Sheets has been successfully updated!")
+        else:
+            st.error(f"The columns in the uploaded file do not match the expected columns. Please ensure the following order: {', '.join(EXPECTED_COLUMNS)}")
+
 
 
 # #################################################################
