@@ -40,8 +40,18 @@ def load_data():
     df = pd.DataFrame(data)
     return df
 
+# Function to convert time columns to strings
+def convert_time_columns_to_str(dataframe):
+    for col in ['昼の開始時間', '昼の終了時間', '夜の開始時間', '夜の終了時間']:
+        if col in dataframe.columns:
+            dataframe[col] = dataframe[col].apply(lambda x: x.strftime('%H:%M') if pd.notnull(x) else '')
+    return dataframe
+
 # Function to overwrite data in Google Sheets
 def overwrite_google_sheet(dataframe):
+    # Convert time columns to string format to avoid JSON serialization errors
+    dataframe = convert_time_columns_to_str(dataframe)
+    
     # Replace any NaN values with empty strings to avoid JSON serialization issues
     dataframe = dataframe.fillna('')
 
