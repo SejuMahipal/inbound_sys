@@ -109,10 +109,10 @@ if page == "View Data":
         col1, col2 = st.columns([1, 1])
 
         with col1:
-            if st.markdown('<button class="big-button" id="keyword-list-button">Keyword List</button>', unsafe_allow_html=True):
+            if st.button("Keyword List"):
                 st.session_state.view = "Keyword List"
         with col2:
-            if st.markdown('<button class="big-button" id="action-list-button">Action List</button>', unsafe_allow_html=True):
+            if st.button("Action List"):
                 st.session_state.view = "Action List"
 
         # Initialize session state for view if not already set
@@ -155,6 +155,7 @@ elif page == "Upload Data":
                 st.error(f"The columns in the uploaded file do not match the expected columns. Please ensure the following order: {', '.join(EXPECTED_COLUMNS)}")
         except Exception as e:
             st.error(f"Error processing the file: {e}")
+
 
 
 
