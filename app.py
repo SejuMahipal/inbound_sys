@@ -55,10 +55,10 @@ def display_action_list(data_df):
     st.table(action_df)
 
 # Streamlit multipage setup
-st.set_page_config(page_title="Google Sheets Data App", layout="wide")
+st.set_page_config(page_title="受付君", layout="wide")
 
 # Top navigation buttons for switching between pages, aligned to the right
-st.title("Google Sheets Data App")
+st.title("アンビシオ受付君")
 
 # Create three columns for alignment, where the last two will contain the buttons
 col1, col2, col3 = st.columns([6, 1, 1])
