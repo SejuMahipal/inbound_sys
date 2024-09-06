@@ -71,25 +71,26 @@ st.title("Google Sheets Data App")
 # Create three columns for alignment, where the last two will contain the buttons
 col1, col2, col3 = st.columns([6, 1, 1])
 
+# Default to "View Data" if session state isn't set
+if "page" not in st.session_state:
+    st.session_state.page = "View Data"
+
 with col2:
     if st.button("View Data"):
-        page = "View Data"
-    else:
-        page = st.session_state.get("page", "View Data")
+        st.session_state.page = "View Data"
 
 with col3:
     if st.button("Upload Data"):
-        page = "Upload Data"
-    else:
-        page = st.session_state.get("page", page)
+        st.session_state.page = "Upload Data"
 
-# Save page state to maintain navigation across sessions
-st.session_state["page"] = page
+# Handle page switching
+page = st.session_state.page
 
 # Page 1: View Data
 if page == "View Data":
     st.title("📊 View Data from Google Sheets")
     
+    # Load the data each time the View Data page is accessed
     data_df = load_data()
 
     if not data_df.empty:
