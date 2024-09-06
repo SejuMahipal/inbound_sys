@@ -88,7 +88,7 @@ page = st.session_state.page
 
 # Page 1: View Data
 if page == "View Data":
-    st.title("📊 View Data from Google Sheets")
+    st.title("📊 現状データ")  # Changed "View Data from Google Sheets" to "現状データ"
     
     # Load the data each time the View Data page is accessed
     data_df = load_data()
@@ -137,10 +137,10 @@ if page == "View Data":
 
 # Page 2: Upload Data
 elif page == "Upload Data":
-    st.title("📤 Upload Excel to Update Google Sheets")
+    st.title("📤 エクセルシートをアップロードしてGoogle Sheetsを更新")  # Changed to Japanese
 
     # File uploader
-    uploaded_file = st.file_uploader("Upload your Excel file", type=["xlsx"])
+    uploaded_file = st.file_uploader("エクセルファイルをアップロード", type=["xlsx"])
 
     if uploaded_file:
         try:
@@ -148,21 +148,23 @@ elif page == "Upload Data":
             df = pd.read_excel(uploaded_file, engine="openpyxl")
 
             # Display the uploaded file's content
-            st.write("### Uploaded Data Preview:")
+            st.write("### アップロードされたデータのプレビュー:")
             st.table(df)
 
             # Check if the column names match the expected columns
             if list(df.columns) == EXPECTED_COLUMNS:
-                st.success("The columns match the expected order.")
+                st.success("列は期待通りの順序で一致しています。")
 
                 # Overwrite the Google Sheet with the new data
-                if st.button("Update Google Sheets"):
+                if st.button("Google Sheetsを更新"):
                     overwrite_google_sheet(df)
-                    st.success("Google Sheets has been successfully updated!")
+                    st.success("Google Sheetsが正常に更新されました！")
             else:
-                st.error(f"The columns in the uploaded file do not match the expected columns. Please ensure the following order: {', '.join(EXPECTED_COLUMNS)}")
+                st.error(f"アップロードされたファイルの列が期待通りの列と一致しません。次の順序であることを確認してください: {', '.join(EXPECTED_COLUMNS)}")
         except Exception as e:
-            st.error(f"Error processing the file: {e}")
+            st.error(f"ファイル処理エラー: {e}")
+
+
 
 
 
