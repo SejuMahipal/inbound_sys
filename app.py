@@ -94,8 +94,7 @@ if page == "View Data":
     data_df = load_data()
 
     if not data_df.empty:
-        st.subheader("Keyword Information")
-        
+        st.subheader("氏名・キーワードリスト")  # Custom header to match your style
         # Show the entire DataFrame without scrollbars
         st.table(data_df)
     else:
@@ -129,7 +128,6 @@ elif page == "Upload Data":
                 st.error(f"The columns in the uploaded file do not match the expected columns. Please ensure the following order: {', '.join(EXPECTED_COLUMNS)}")
         except Exception as e:
             st.error(f"Error processing the file: {e}")
-
 
 
 # #################################################################
