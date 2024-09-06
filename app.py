@@ -58,7 +58,7 @@ def display_action_list(data_df):
 st.set_page_config(page_title="受付君", layout="wide")
 
 # Title with Image on the Left
-col1, col2 = st.columns([1, 4])
+col1, col2 = st.columns([1, 8])
 with col1:
     # Using the raw URL from GitHub
     image_url = "https://raw.githubusercontent.com/SejuMahipal/inbound_sys/main/logo.png"
