@@ -116,12 +116,12 @@ if page == "View Data":
         </style>
         """, unsafe_allow_html=True)
 
-        col1, col2 = st.columns([1, 1])
+        col1, col2 = st.columns([1, 10])
 
         with col1:
             if st.button("Keyword List"):
                 st.session_state.view = "Keyword List"
-        with col2:
+        with col10:
             if st.button("Action List"):
                 st.session_state.view = "Action List"
 
