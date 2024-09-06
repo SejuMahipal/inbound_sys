@@ -3,12 +3,12 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
 
-# Expected columns for Keyword and Action lists
-KEYWORD_COLUMNS = ['キーワード', '類似語1', '類似語2', '類似語3', '類似語4']
-ACTION_COLUMNS = [
-    'キーワード', '電話番号', 'SMS', 'E-MAIL', '昼の転送方法', '昼の返答', 
-    '昼の開始時間', '昼の終了時間', '夜の転送方法', '夜の返答', 
-    '夜の開始時間', '夜の終了時間'
+# Expected column order
+EXPECTED_COLUMNS = [
+    'キーワード', '類似語1', '類似語2', '類似語3', '類似語4', 
+    '電話番号', 'SMS', 'E-MAIL', '昼の転送方法', '昼の返答', 
+    '昼の開始時間', '昼の終了時間', '夜の転送方法', 
+    '夜の返答', '夜の開始時間', '夜の終了時間'
 ]
 
 # Google Sheets API setup
@@ -42,14 +42,12 @@ def load_data():
 
 # Function to display the Keyword List
 def display_keyword_list(data_df):
-    # Filter for only the Keyword List columns
     keyword_df = data_df[['キーワード', '類似語1', '類似語2', '類似語3', '類似語4']]
     st.subheader("📋 キーワードリスト")
     st.table(keyword_df)
 
 # Function to display the Action List
 def display_action_list(data_df):
-    # Filter for only the Action List columns
     action_df = data_df[['キーワード', '電話番号', 'SMS', 'E-MAIL', '昼の転送方法', '昼の返答', 
                          '昼の開始時間', '昼の終了時間', '夜の転送方法', '夜の返答', 
                          '夜の開始時間', '夜の終了時間']]
@@ -59,94 +57,104 @@ def display_action_list(data_df):
 # Streamlit multipage setup
 st.set_page_config(page_title="Google Sheets Data App", layout="wide")
 
-# Top section title
+# Top navigation buttons for switching between pages, aligned to the right
 st.title("Google Sheets Data App")
 
-# Load the data from Google Sheets
-data_df = load_data()
+# Create three columns for alignment, where the last two will contain the buttons
+col1, col2, col3 = st.columns([6, 1, 1])
 
-# Use custom markdown to create horizontal buttons
-st.markdown("""
-    <style>
-    .button-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin-bottom: 20px;
-    }
-    .button-container div {
-        margin: 0 10px;
-    }
-    .custom-button {
-        background-color: #007bff;
-        color: white;
-        padding: 10px 20px;
-        font-size: 18px;
-        text-align: center;
-        border-radius: 5px;
-        width: 300px;
-        display: inline-block;
-        cursor: pointer;
-    }
-    .custom-button:hover {
-        background-color: #0056b3;
-    }
-    </style>
-    <div class="button-container">
-        <div>
-            <button class="custom-button" id="keyword_button">Keyword List</button>
-        </div>
-        <div>
-            <button class="custom-button" id="action_button">Action List</button>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+# Default to "View Data" if session state isn't set
+if "page" not in st.session_state:
+    st.session_state.page = "View Data"
 
-# Handle user click using JavaScript for buttons
-clicked = st.session_state.get("clicked", None)
+with col2:
+    if st.button("View Data"):
+        st.session_state.page = "View Data"
 
-# JavaScript to detect clicks on buttons and update Streamlit state
-st.markdown("""
-    <script>
-    const keywordButton = document.getElementById("keyword_button");
-    const actionButton = document.getElementById("action_button");
+with col3:
+    if st.button("Upload Data"):
+        st.session_state.page = "Upload Data"
+
+# Handle page switching
+page = st.session_state.page
+
+# Page 1: View Data
+if page == "View Data":
+    st.title("📊 View Data from Google Sheets")
     
-    keywordButton.addEventListener("click", function() {
-        window.parent.postMessage('{"clicked": "Keyword"}', "*");
-    });
-    
-    actionButton.addEventListener("click", function() {
-        window.parent.postMessage('{"clicked": "Action"}', "*");
-    });
-    </script>
-    """, unsafe_allow_html=True)
+    # Load the data each time the View Data page is accessed
+    data_df = load_data()
 
-# Capture postMessage event
-st.markdown("""
-    <script>
-    window.addEventListener('message', (event) => {
-        if (event.data && event.data.clicked) {
-            if (event.data.clicked === "Keyword") {
-                window.parent.streamlitFrontend.postMessage('setState', {
-                    clicked: 'Keyword'
-                });
-                window.location.reload();
-            } else if (event.data.clicked === "Action") {
-                window.parent.streamlitFrontend.postMessage('setState', {
-                    clicked: 'Action'
-                });
-                window.location.reload();
-            }
+    if not data_df.empty:
+        # Button layout for Keyword List and Action List
+        st.markdown("""
+        <style>
+        .big-button {
+            display: inline-block;
+            width: 45%;
+            padding: 20px;
+            margin: 10px;
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+            color: white;
+            background-color: #4CAF50;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
         }
-    });
-    </script>
-    """, unsafe_allow_html=True)
+        </style>
+        """, unsafe_allow_html=True)
 
-# Handle button clicks by checking the `clicked` session state
-if clicked == "Keyword" or clicked is None:
-    display_keyword_list(data_df)
-elif clicked == "Action":
-    display_action_list(data_df)
+        col1, col2 = st.columns([1, 1])
+
+        with col1:
+            if st.markdown('<button class="big-button" id="keyword-list-button">Keyword List</button>', unsafe_allow_html=True):
+                st.session_state.view = "Keyword List"
+        with col2:
+            if st.markdown('<button class="big-button" id="action-list-button">Action List</button>', unsafe_allow_html=True):
+                st.session_state.view = "Action List"
+
+        # Initialize session state for view if not already set
+        if "view" not in st.session_state:
+            st.session_state.view = "Keyword List"
+
+        # Display the chosen list
+        if st.session_state.view == "Keyword List":
+            display_keyword_list(data_df)
+        elif st.session_state.view == "Action List":
+            display_action_list(data_df)
+    else:
+        st.write("No data available to display.")
+
+# Page 2: Upload Data
+elif page == "Upload Data":
+    st.title("📤 Upload Excel to Update Google Sheets")
+
+    # File uploader
+    uploaded_file = st.file_uploader("Upload your Excel file", type=["xlsx"])
+
+    if uploaded_file:
+        try:
+            # Read the uploaded Excel file using openpyxl engine
+            df = pd.read_excel(uploaded_file, engine="openpyxl")
+
+            # Display the uploaded file's content
+            st.write("### Uploaded Data Preview:")
+            st.table(df)
+
+            # Check if the column names match the expected columns
+            if list(df.columns) == EXPECTED_COLUMNS:
+                st.success("The columns match the expected order.")
+
+                # Overwrite the Google Sheet with the new data
+                if st.button("Update Google Sheets"):
+                    overwrite_google_sheet(df)
+                    st.success("Google Sheets has been successfully updated!")
+            else:
+                st.error(f"The columns in the uploaded file do not match the expected columns. Please ensure the following order: {', '.join(EXPECTED_COLUMNS)}")
+        except Exception as e:
+            st.error(f"Error processing the file: {e}")
 
 
 
