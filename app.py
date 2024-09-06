@@ -42,8 +42,15 @@ def load_data():
 
 # Function to overwrite data in Google Sheets
 def overwrite_google_sheet(dataframe):
+    # Replace any NaN values with empty strings to avoid JSON serialization issues
+    dataframe = dataframe.fillna('')
+
+    # Convert the DataFrame to a list of lists to send to Google Sheets
+    data_as_lists = [dataframe.columns.values.tolist()] + dataframe.values.tolist()
+
+    # Update the Google Sheet
     sheet.clear()  # Clear the existing data
-    sheet.update([dataframe.columns.values.tolist()] + dataframe.values.tolist())  # Write new data
+    sheet.update(data_as_lists)  # Write new data
 
 # Streamlit multipage setup
 st.set_page_config(page_title="Google Sheets Data App", layout="wide")
@@ -72,23 +79,26 @@ elif page == "Upload Data":
     uploaded_file = st.file_uploader("Upload your Excel file", type=["xlsx"])
 
     if uploaded_file:
-        # Read the uploaded Excel file
-        df = pd.read_excel(uploaded_file)
+        try:
+            # Read the uploaded Excel file using openpyxl engine
+            df = pd.read_excel(uploaded_file, engine="openpyxl")
 
-        # Display the uploaded file's content
-        st.write("### Uploaded Data Preview:")
-        st.dataframe(df, use_container_width=True)
+            # Display the uploaded file's content
+            st.write("### Uploaded Data Preview:")
+            st.dataframe(df, use_container_width=True)
 
-        # Check if the column names match the expected columns
-        if list(df.columns) == EXPECTED_COLUMNS:
-            st.success("The columns match the expected order.")
+            # Check if the column names match the expected columns
+            if list(df.columns) == EXPECTED_COLUMNS:
+                st.success("The columns match the expected order.")
 
-            # Overwrite the Google Sheet with the new data
-            if st.button("Update Google Sheets"):
-                overwrite_google_sheet(df)
-                st.success("Google Sheets has been successfully updated!")
-        else:
-            st.error(f"The columns in the uploaded file do not match the expected columns. Please ensure the following order: {', '.join(EXPECTED_COLUMNS)}")
+                # Overwrite the Google Sheet with the new data
+                if st.button("Update Google Sheets"):
+                    overwrite_google_sheet(df)
+                    st.success("Google Sheets has been successfully updated!")
+            else:
+                st.error(f"The columns in the uploaded file do not match the expected columns. Please ensure the following order: {', '.join(EXPECTED_COLUMNS)}")
+        except Exception as e:
+            st.error(f"Error processing the file: {e}")
 
 
 
