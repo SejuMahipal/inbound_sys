@@ -96,8 +96,8 @@ if page == "View Data":
     if not data_df.empty:
         st.subheader("Keyword Information")
         
-        # Adjust the table to take up the full width and height
-        st.dataframe(data_df, use_container_width=True, height=600)
+        # Show the entire DataFrame without scrollbars
+        st.table(data_df)
     else:
         st.write("No data available to display.")
 
@@ -115,7 +115,7 @@ elif page == "Upload Data":
 
             # Display the uploaded file's content
             st.write("### Uploaded Data Preview:")
-            st.dataframe(df, use_container_width=True, height=600)
+            st.table(df)
 
             # Check if the column names match the expected columns
             if list(df.columns) == EXPECTED_COLUMNS:
