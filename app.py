@@ -95,7 +95,9 @@ if page == "View Data":
 
     if not data_df.empty:
         st.subheader("Keyword Information")
-        st.dataframe(data_df, use_container_width=True)
+        
+        # Adjust the table to take up the full width and height
+        st.dataframe(data_df, use_container_width=True, height=600)
     else:
         st.write("No data available to display.")
 
@@ -113,7 +115,7 @@ elif page == "Upload Data":
 
             # Display the uploaded file's content
             st.write("### Uploaded Data Preview:")
-            st.dataframe(df, use_container_width=True)
+            st.dataframe(df, use_container_width=True, height=600)
 
             # Check if the column names match the expected columns
             if list(df.columns) == EXPECTED_COLUMNS:
@@ -127,6 +129,7 @@ elif page == "Upload Data":
                 st.error(f"The columns in the uploaded file do not match the expected columns. Please ensure the following order: {', '.join(EXPECTED_COLUMNS)}")
         except Exception as e:
             st.error(f"Error processing the file: {e}")
+
 
 
 # #################################################################
