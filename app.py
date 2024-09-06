@@ -65,13 +65,13 @@ def overwrite_google_sheet(dataframe):
 # Streamlit multipage setup
 st.set_page_config(page_title="Google Sheets Data App", layout="wide")
 
-# Top navigation buttons for switching between pages
+# Top navigation buttons for switching between pages, aligned to the right
 st.title("Google Sheets Data App")
 
-# Adjust the column sizes to place buttons closer together
-col1, col2, col3 = st.columns([1, 0.1, 1])
+# Create three columns for alignment, where the last two will contain the buttons
+col1, col2, col3 = st.columns([6, 1, 1])
 
-with col1:
+with col2:
     if st.button("View Data"):
         page = "View Data"
     else:
