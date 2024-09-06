@@ -3,7 +3,7 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
 
-# Expected columns for keyword and action list
+# Expected columns for Keyword and Action lists
 KEYWORD_COLUMNS = ['キーワード', '類似語1', '類似語2', '類似語3', '類似語4']
 ACTION_COLUMNS = [
     'キーワード', '電話番号', 'SMS', 'E-MAIL', '昼の転送方法', '昼の返答', 
@@ -43,61 +43,109 @@ def load_data():
 # Function to display the Keyword List
 def display_keyword_list(data_df):
     # Filter for only the Keyword List columns
-    keyword_df = data_df[KEYWORD_COLUMNS]
+    keyword_df = data_df[['キーワード', '類似語1', '類似語2', '類似語3', '類似語4']]
     st.subheader("📋 キーワードリスト")
     st.table(keyword_df)
 
 # Function to display the Action List
 def display_action_list(data_df):
     # Filter for only the Action List columns
-    action_df = data_df[ACTION_COLUMNS]
+    action_df = data_df[['キーワード', '電話番号', 'SMS', 'E-MAIL', '昼の転送方法', '昼の返答', 
+                         '昼の開始時間', '昼の終了時間', '夜の転送方法', '夜の返答', 
+                         '夜の開始時間', '夜の終了時間']]
     st.subheader("📋 アクションリスト")
     st.table(action_df)
 
 # Streamlit multipage setup
 st.set_page_config(page_title="Google Sheets Data App", layout="wide")
 
-# Custom button style using HTML and CSS
-button_style = """
+# Top section title
+st.title("Google Sheets Data App")
+
+# Load the data from Google Sheets
+data_df = load_data()
+
+# Use custom markdown to create horizontal buttons
+st.markdown("""
     <style>
     .button-container {
         display: flex;
-        justify-content: space-between;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 20px;
     }
-    .button {
-        font-size: 24px;
-        padding: 20px;
-        width: 48%;
-        text-align: center;
-        background-color: #4CAF50;
+    .button-container div {
+        margin: 0 10px;
+    }
+    .custom-button {
+        background-color: #007bff;
         color: white;
-        border: none;
-        border-radius: 10px;
+        padding: 10px 20px;
+        font-size: 18px;
+        text-align: center;
+        border-radius: 5px;
+        width: 300px;
+        display: inline-block;
         cursor: pointer;
     }
-    .button:hover {
-        background-color: #45a049;
+    .custom-button:hover {
+        background-color: #0056b3;
     }
     </style>
-"""
+    <div class="button-container">
+        <div>
+            <button class="custom-button" id="keyword_button">Keyword List</button>
+        </div>
+        <div>
+            <button class="custom-button" id="action_button">Action List</button>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 
-# Inject the custom style
-st.markdown(button_style, unsafe_allow_html=True)
+# Handle user click using JavaScript for buttons
+clicked = st.session_state.get("clicked", None)
 
-# Create a horizontal layout for the buttons
-st.markdown('<div class="button-container">', unsafe_allow_html=True)
-col1, col2 = st.columns(2)
+# JavaScript to detect clicks on buttons and update Streamlit state
+st.markdown("""
+    <script>
+    const keywordButton = document.getElementById("keyword_button");
+    const actionButton = document.getElementById("action_button");
+    
+    keywordButton.addEventListener("click", function() {
+        window.parent.postMessage('{"clicked": "Keyword"}', "*");
+    });
+    
+    actionButton.addEventListener("click", function() {
+        window.parent.postMessage('{"clicked": "Action"}', "*");
+    });
+    </script>
+    """, unsafe_allow_html=True)
 
-with col1:
-    keyword_button = st.markdown('<button class="button">Keyword List</button>', unsafe_allow_html=True)
-with col2:
-    action_button = st.markdown('<button class="button">Action List</button>', unsafe_allow_html=True)
-st.markdown('</div>', unsafe_allow_html=True)
+# Capture postMessage event
+st.markdown("""
+    <script>
+    window.addEventListener('message', (event) => {
+        if (event.data && event.data.clicked) {
+            if (event.data.clicked === "Keyword") {
+                window.parent.streamlitFrontend.postMessage('setState', {
+                    clicked: 'Keyword'
+                });
+                window.location.reload();
+            } else if (event.data.clicked === "Action") {
+                window.parent.streamlitFrontend.postMessage('setState', {
+                    clicked: 'Action'
+                });
+                window.location.reload();
+            }
+        }
+    });
+    </script>
+    """, unsafe_allow_html=True)
 
-# Handle the display of the data based on button clicks
-if st.session_state.page == "Keyword List":
+# Handle button clicks by checking the `clicked` session state
+if clicked == "Keyword" or clicked is None:
     display_keyword_list(data_df)
-elif st.session_state.page == "Action List":
+elif clicked == "Action":
     display_action_list(data_df)
 
 
