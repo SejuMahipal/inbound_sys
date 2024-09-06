@@ -74,15 +74,15 @@ if "page" not in st.session_state:
     st.session_state.page = "View Data"
 
 with col2:
-    if st.button("データ表示", key="view_data", help="Click to view data"):
+    if st.button("データ表示", key="view_data", help="データを確認したいならこちらへクリック"):
         st.session_state.page = "View Data"
 
 with col3:
-    if st.button("データ編集", key="edit_data", help="Click to edit data"):
+    if st.button("データ編集", key="edit_data", help="データを編集するならこちらへクリック"):
         st.session_state.page = "Upload Data"
 
 with col4:
-    if st.button("通話履歴", key="call_history", help="Click to view call history"):
+    if st.button("通話履歴", key="call_history", help="通話履歴を確認したいならこちらへクリック"):
         st.session_state.page = "Call History"
 
 # Custom CSS for button colors
