@@ -40,27 +40,21 @@ def load_data():
     df = pd.DataFrame(data)
     return df
 
-# Function to convert time columns to strings
-def convert_time_columns_to_str(dataframe):
-    for col in ['昼の開始時間', '昼の終了時間', '夜の開始時間', '夜の終了時間']:
-        if col in dataframe.columns:
-            dataframe[col] = dataframe[col].apply(lambda x: x.strftime('%H:%M') if pd.notnull(x) else '')
-    return dataframe
+# Function to display the Keyword List
+def display_keyword_list(data_df):
+    # Filter for only the Keyword List columns
+    keyword_df = data_df[['キーワード', '類似語1', '類似語2', '類似語3', '類似語4']]
+    st.subheader("📋 キーワードリスト")
+    st.table(keyword_df)
 
-# Function to overwrite data in Google Sheets
-def overwrite_google_sheet(dataframe):
-    # Convert time columns to string format to avoid JSON serialization errors
-    dataframe = convert_time_columns_to_str(dataframe)
-    
-    # Replace any NaN values with empty strings to avoid JSON serialization issues
-    dataframe = dataframe.fillna('')
-
-    # Convert the DataFrame to a list of lists to send to Google Sheets
-    data_as_lists = [dataframe.columns.values.tolist()] + dataframe.values.tolist()
-
-    # Update the Google Sheet
-    sheet.clear()  # Clear the existing data
-    sheet.update(data_as_lists)  # Write new data
+# Function to display the Action List
+def display_action_list(data_df):
+    # Filter for only the Action List columns
+    action_df = data_df[['キーワード', '電話番号', 'SMS', 'E-MAIL', '昼の転送方法', '昼の返答', 
+                         '昼の開始時間', '昼の終了時間', '夜の転送方法', '夜の返答', 
+                         '夜の開始時間', '夜の終了時間']]
+    st.subheader("📋 アクションリスト")
+    st.table(action_df)
 
 # Streamlit multipage setup
 st.set_page_config(page_title="Google Sheets Data App", layout="wide")
@@ -94,9 +88,14 @@ if page == "View Data":
     data_df = load_data()
 
     if not data_df.empty:
-        st.subheader("氏名・キーワードリスト")  # Custom header to match your style
-        # Show the entire DataFrame without scrollbars
-        st.table(data_df)
+        st.subheader("Choose the list you want to view:")
+
+        # Create buttons to switch between Keyword List and Action List
+        if st.button("Keyword List"):
+            display_keyword_list(data_df)
+
+        if st.button("Action List"):
+            display_action_list(data_df)
     else:
         st.write("No data available to display.")
 
@@ -128,6 +127,8 @@ elif page == "Upload Data":
                 st.error(f"The columns in the uploaded file do not match the expected columns. Please ensure the following order: {', '.join(EXPECTED_COLUMNS)}")
         except Exception as e:
             st.error(f"Error processing the file: {e}")
+
+
 
 
 # #################################################################
