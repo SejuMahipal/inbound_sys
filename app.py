@@ -66,34 +66,6 @@ with col1:
 with col2:
     st.title("アンビシオ受付君")
 
-# Custom CSS for button colors
-st.markdown("""
-    <style>
-    .button-style {
-        display: inline-block;
-        width: 100%;
-        padding: 20px;
-        margin: 10px;
-        font-size: 20px;
-        font-weight: bold;
-        text-align: center;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-    }
-    .button-view {
-        background-color: #1E90FF;  /* Blue */
-    }
-    .button-edit {
-        background-color: #32CD32;  /* Green */
-    }
-    .button-history {
-        background-color: #FF6347;  /* Tomato */
-    }
-    </style>
-""", unsafe_allow_html=True)
-
 # Create three columns for alignment, where the last three will contain the buttons
 col1, col2, col3, col4 = st.columns([6, 1, 1, 1])
 
@@ -102,19 +74,34 @@ if "page" not in st.session_state:
     st.session_state.page = "View Data"
 
 with col2:
-    if st.button("データ表示", key="view_data"):
+    if st.button("データ表示", key="view_data", help="Click to view data"):
         st.session_state.page = "View Data"
-    st.markdown('<div class="button-style button-view">データ表示</div>', unsafe_allow_html=True)
 
 with col3:
-    if st.button("データ編集", key="edit_data"):
+    if st.button("データ編集", key="edit_data", help="Click to edit data"):
         st.session_state.page = "Upload Data"
-    st.markdown('<div class="button-style button-edit">データ編集</div>', unsafe_allow_html=True)
 
 with col4:
-    if st.button("通話履歴", key="call_history"):
+    if st.button("通話履歴", key="call_history", help="Click to view call history"):
         st.session_state.page = "Call History"
-    st.markdown('<div class="button-style button-history">通話履歴</div>', unsafe_allow_html=True)
+
+# Custom CSS for button colors
+st.markdown("""
+    <style>
+    div.stButton > button:first-child {
+        color: white;
+        background-color: #1E90FF;
+    }
+    div.stButton:nth-child(3) > button:first-child {
+        background-color: #32CD32;
+    }
+    div.stButton:nth-child(4) > button:first-child {
+        background-color: #FF6347;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+# Now, the buttons within the columns will appear in the desired colors.
 
 
 # Handle page switching
