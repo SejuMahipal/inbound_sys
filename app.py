@@ -1,4 +1,3 @@
-
 import streamlit as st
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
@@ -58,41 +57,14 @@ def display_action_list(data_df):
 # Streamlit multipage setup
 st.set_page_config(page_title="受付君", layout="wide")
 
-# Option 1: Adjust Column Width to reduce the gap
-st.title("Using Adjusted Column Widths")
-col1, col2 = st.columns([1, 5])  # Adjust the ratio here to bring the image and text closer
+# Title with Image on the Left
+col1, col2 = st.columns([1, 4])
 with col1:
     # Using the raw URL from GitHub
     image_url = "https://raw.githubusercontent.com/SejuMahipal/inbound_sys/main/logo.png"
     st.image(image_url, width=100)  # Adjust width if needed
 with col2:
-    st.markdown("<h1 style='padding-top: 0px;'>アンビシオ受付君</h1>", unsafe_allow_html=True)
-
-# Option 2: Custom CSS for fine-tuning (You can switch between Option 1 and Option 2)
-st.title("Using Custom CSS for Fine Tuning")
-# Custom CSS to reduce the gap between the image and text
-st.markdown("""
-    <style>
-        .title-text {
-            display: inline-block;
-            vertical-align: top;
-            margin-left: -10px;  /* Adjust this to reduce the gap */
-        }
-        .image-class {
-            display: inline-block;
-            vertical-align: top;
-        }
-    </style>
-    """, unsafe_allow_html=True)
-
-# Title with Image on the Left
-col1, col2 = st.columns([1, 5])  # Adjust the ratio here to bring them closer
-with col1:
-    # Using the raw URL from GitHub
-    image_url = "https://raw.githubusercontent.com/SejuMahipal/inbound_sys/main/logo.png"
-    st.image(image_url, width=100, class_="image-class")  # Adding class for CSS control
-with col2:
-    st.markdown("<h1 class='title-text'>アンビシオ受付君</h1>", unsafe_allow_html=True)
+    st.title("アンビシオ受付君")
 
 # Create three columns for alignment, where the last two will contain the buttons
 col1, col2, col3 = st.columns([6, 1, 1])
@@ -189,9 +161,6 @@ elif page == "Upload Data":
                 st.error(f"The columns in the uploaded file do not match the expected columns. Please ensure the following order: {', '.join(EXPECTED_COLUMNS)}")
         except Exception as e:
             st.error(f"Error processing the file: {e}")
-
-
-
 
 
 
